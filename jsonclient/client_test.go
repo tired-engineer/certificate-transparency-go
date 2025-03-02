@@ -236,7 +236,7 @@ func TestGetAndParse(t *testing.T) {
 		ua         string
 	}{
 		{uri: "/short%", wantErr: "invalid URL escape"},
-		{uri: "/malformed", wantStatus: http.StatusOK, wantErr: "unexpected EOF"},
+		{uri: "/malformed", wantStatus: http.StatusOK, wantErr: "expected comma after object element"},
 		{uri: "/error", params: map[string]string{"rc": "404"}, wantErr: "404 Not Found"},
 		{uri: "/error", params: map[string]string{"rc": "403"}, wantErr: "403 Forbidden"},
 		{uri: "/struct/path", wantStatus: http.StatusOK, want: TestStruct{11, 99, ""}},
@@ -307,7 +307,7 @@ func TestPostAndParse(t *testing.T) {
 	}{
 		{uri: "/short%", wantErr: "invalid URL escape"},
 		{uri: "/struct/params", request: json.Number(`invalid`), wantErr: "invalid number literal"},
-		{uri: "/malformed", wantStatus: http.StatusOK, wantErr: "unexpected end of JSON"},
+		{uri: "/malformed", wantStatus: http.StatusOK, wantErr: "expected comma after object element"},
 		{uri: "/error", request: TestParams{RespCode: 404}, wantStatus: http.StatusNotFound},
 		{uri: "/error", request: TestParams{RespCode: 403}, wantStatus: http.StatusForbidden},
 		{uri: "/struct/path", wantStatus: http.StatusOK, want: TestStruct{11, 99, ""}},

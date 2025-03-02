@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"context"
 	"crypto"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -32,6 +31,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/goccy/go-json"
 	ct "github.com/google/certificate-transparency-go"
 	"github.com/google/certificate-transparency-go/x509"
 	"golang.org/x/net/context/ctxhttp"
