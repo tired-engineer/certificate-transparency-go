@@ -19,10 +19,11 @@ package client
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/cristalhq/base64"
 
 	ct "github.com/google/certificate-transparency-go"
 	"github.com/google/certificate-transparency-go/jsonclient"
