@@ -178,7 +178,9 @@ func (c *JSONClient) GetAndParse(ctx context.Context, path string, params map[st
 		vals.Add(k, v)
 	}
 	fullURI := fmt.Sprintf("%s%s?%s", c.uri, path, vals.Encode())
-	klog.V(2).Infof("GET %s", fullURI)
+	if klog.V(2).Enabled() {
+		klog.V(2).Infof("GET %s", fullURI)
+	}
 	httpReq, err := http.NewRequest(http.MethodGet, fullURI, nil)
 	if err != nil {
 		return nil, nil, err
@@ -193,9 +195,15 @@ func (c *JSONClient) GetAndParse(ctx context.Context, path string, params map[st
 	}
 
 	// Read everything now so http.Client can reuse the connection.
-	body, err := io.ReadAll(httpRsp.Body)
-	if err := httpRsp.Body.Close(); err != nil {
-		return nil, nil, err
+	var body []byte
+	if httpRsp.ContentLength > 0 {
+		body = make([]byte, httpRsp.ContentLength)
+		_, err = io.ReadFull(httpRsp.Body, body)
+	} else {
+		body, err = io.ReadAll(httpRsp.Body)
+	}
+	if closeErr := httpRsp.Body.Close(); closeErr != nil {
+		return nil, nil, closeErr
 	}
 	if err != nil {
 		return nil, nil, RspError{Err: fmt.Errorf("failed to read response body: %v", err), StatusCode: httpRsp.StatusCode, Body: body}
@@ -241,9 +249,14 @@ func (c *JSONClient) PostAndParse(ctx context.Context, path string, req, rsp int
 	// Read all of the body, if there is one, so that the http.Client can do Keep-Alive.
 	var body []byte
 	if httpRsp != nil {
-		body, err = io.ReadAll(httpRsp.Body)
-		if err := httpRsp.Body.Close(); err != nil {
-			return nil, nil, err
+		if httpRsp.ContentLength > 0 {
+			body = make([]byte, httpRsp.ContentLength)
+			_, err = io.ReadFull(httpRsp.Body, body)
+		} else {
+			body, err = io.ReadAll(httpRsp.Body)
+		}
+		if closeErr := httpRsp.Body.Close(); closeErr != nil {
+			return nil, nil, closeErr
 		}
 	}
 	if err != nil {
